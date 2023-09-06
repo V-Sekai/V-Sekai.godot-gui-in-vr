@@ -5,9 +5,9 @@ signal controller_activated(controller)
 var _ws := 1.0
 
 @onready var _controller: XRController3D = get_parent()
-@onready var vive_material = preload("res://addons/gui_in_vr/vive/vive.tres")
 @onready var touchpad_cylinder = $Touchpad/Cylinder
 @onready var touchpad_selection_dot = $Touchpad/SelectionDot
+@onready var touchpad_material = StandardMaterial3D.new()
 
 func _ready():
 	_controller.visible = false
@@ -50,9 +50,8 @@ func _base_controller_mesh_stuff():
 	mesh = load_controller_mesh(controller_name)
 	touchpad_cylinder.visible = controller_name.find("vive") < 0
 	if !touchpad_cylinder.visible:
-		material_override = vive_material
+		material_override = touchpad_material
 
-	# Make it visible.
 	_controller.visible = true
 	emit_signal("controller_activated", _controller)
 
