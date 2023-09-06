@@ -38,7 +38,7 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 
 	var t = raycast_collider.global_transform
 	var at = t.affine_inverse() * collision_point
-	var screen_size: Vector2 = Vector2(0.280, 0.180)
+	var screen_size: Vector2 = Vector2(280, 180)
 	at.x = ((at.x / screen_size.x) + 0.5) * viewport.size.x
 	at.y = (0.5 - (at.y / screen_size.y)) * viewport.size.y
 
