@@ -23,6 +23,10 @@ window/vsync/vsync_mode=false
 
 singletons=["res://addons/godot-openvr/godot_openvr.gdnlib"]
 
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+
 [physics]
 
 3d/physics_engine="GodotPhysics"
