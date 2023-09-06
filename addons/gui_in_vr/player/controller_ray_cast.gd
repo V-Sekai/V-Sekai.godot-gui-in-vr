@@ -10,17 +10,22 @@ var _ws := 1.0
 
 func _process(_delta):
 	_scale_ray()
-	var raycast_collider = get_collider()
+	var raycast_collider: StaticBody3D = get_collider()
 	# First of all, check if we need to release a previous mouse click.
-	if _old_raycast_collider and raycast_collider != _old_raycast_collider:
+	if not raycast_collider:
+		return
+	if _old_raycast_collider != null and raycast_collider != _old_raycast_collider:
 		_release_mouse()
 	elif raycast_collider:
 		_try_send_input_to_gui(raycast_collider)
 
 
-func _try_send_input_to_gui(raycast_collider):
-	var viewport = raycast_collider.get_child(0)
-	if not (viewport is SubViewport):
+func _try_send_input_to_gui(raycast_collider: StaticBody3D):
+	var nodes: Array[Node] = raycast_collider.find_children("SubViewport", "SubViewport")
+	if not nodes.size():
+		return
+	var viewport: Viewport = nodes[0]
+	if not viewport:
 		return # This isn't something we can give input to.
 
 	var collider_transform = raycast_collider.global_transform
