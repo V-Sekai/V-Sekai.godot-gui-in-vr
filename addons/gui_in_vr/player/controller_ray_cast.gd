@@ -35,14 +35,15 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 	# Convert the collision to a relative position. Expects the 2nd child to be a CollisionShape.
 	var shape_size = raycast_collider.get_child(1).shape.size * 2
 	var collision_point = get_collision_point()
-	var collider_scale = collider_transform.basis.get_scale()
-	var local_point = (collision_point) * collider_transform
-	local_point /= (collider_scale * collider_scale)
-	local_point /= shape_size
-	local_point += Vector3(0.5, 0.5, 0) # X is about 0 to 1, Y is about 0 to 1.
+
+	var t = raycast_collider.global_transform
+	var at = t.affine_inverse() * collision_point
+	var screen_size: Vector2 = Vector2(0.280, 0.180)
+	at.x = ((at.x / screen_size.x) + 0.5) * viewport.size.x
+	at.y = (0.5 - (at.y / screen_size.y)) * viewport.size.y
 
 	# Find the viewport position by scaling the relative position by the viewport size. Discard Z.
-	var viewport_point = Vector2(local_point.x, local_point.y) * Vector2(viewport.size)
+	var viewport_point = Vector2(at.x, at.y)
 
 	# Send mouse motion to the GUI.
 	var event = InputEventMouseMotion.new()
