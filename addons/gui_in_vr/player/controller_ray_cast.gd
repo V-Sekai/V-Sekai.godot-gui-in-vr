@@ -27,7 +27,10 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 	var viewport: Viewport = nodes[0]
 	if not viewport:
 		return # This isn't something we can give input to.
-
+	var controls: Array[Node] = viewport.find_children("*", "Control")
+	if not controls.size():
+		return # This isn't something we can give input to.
+	var control: Control = controls[0]
 	var collider_transform = raycast_collider.global_transform
 	if (global_transform.origin * collider_transform.origin).z < 0:
 		return # Don't allow pressing if we're behind the GUI.
@@ -38,7 +41,7 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 
 	var t = raycast_collider.global_transform
 	var at = t.affine_inverse() * collision_point
-	var screen_size: Vector2 = Vector2(280, 180)
+	var screen_size: Vector2 = control.size
 	at.x = ((at.x / screen_size.x) + 0.5) * viewport.size.x
 	at.y = (0.5 - (at.y / screen_size.y)) * viewport.size.y
 
@@ -47,7 +50,7 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 
 	# Send mouse motion to the GUI.
 	var event = InputEventMouseMotion.new()
-	event.position = viewport_point
+	event.global_position = viewport_point
 	viewport.push_input(event)
 
 	# Figure out whether or not we should trigger a click.
