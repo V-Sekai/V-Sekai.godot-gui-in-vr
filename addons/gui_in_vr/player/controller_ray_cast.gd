@@ -8,7 +8,7 @@ var _ws := 1.0
 @onready var _controller: XRController3D = get_parent()
 
 
-func _process(_delta):
+func _process(_delta) -> void:
 	_scale_ray()
 	var raycast_collider: StaticBody3D = get_collider()
 	# First of all, check if we need to release a previous mouse click.
@@ -20,7 +20,7 @@ func _process(_delta):
 		_try_send_input_to_gui(raycast_collider)
 
 
-func _try_send_input_to_gui(raycast_collider: StaticBody3D):
+func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 	var nodes: Array[Node] = raycast_collider.find_children("SubViewport", "SubViewport")
 	if not nodes.size():
 		return
@@ -39,10 +39,10 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D):
 	var local_point = (collision_point) * collider_transform
 	local_point /= (collider_scale * collider_scale)
 	local_point /= shape_size
-	local_point += Vector3(0.5, -0.5, 0) # X is about 0 to 1, Y is about 0 to -1.
+	local_point += Vector3(0.5, 0.5, 0) # X is about 0 to 1, Y is about 0 to 1.
 
 	# Find the viewport position by scaling the relative position by the viewport size. Discard Z.
-	var viewport_point = Vector2(local_point.x, -local_point.y) * Vector2(viewport.size)
+	var viewport_point = Vector2(local_point.x, local_point.y) * Vector2(viewport.size)
 
 	# Send mouse motion to the GUI.
 	var event = InputEventMouseMotion.new()
@@ -58,7 +58,7 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D):
 		desired_activate_gui = _is_trigger_pressed() # Else, use the trigger.
 
 	# Send a left click to the GUI depending on the above.
-	if desired_activate_gui != _is_activating_gui:
+	if desired_activate_gui:
 		event = InputEventMouseButton.new()
 		event.pressed = desired_activate_gui
 		event.button_index = MOUSE_BUTTON_LEFT
@@ -69,7 +69,7 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D):
 		_old_viewport_point = viewport_point
 
 
-func _release_mouse():
+func _release_mouse() -> void:
 	var event = InputEventMouseButton.new()
 	event.button_index = 1
 	event.position = _old_viewport_point
@@ -78,12 +78,14 @@ func _release_mouse():
 	_is_activating_gui = false
 
 
-func _is_trigger_pressed():
-	return _controller.get_float("trigger") > 0.6
+func _is_trigger_pressed() -> bool:
+	var trigger_press: bool = _controller.get_float("trigger") > 0.6
+	return trigger_press
 
 
-func _scale_ray():
+func _scale_ray() -> Vector3:
 	var new_ws = XRServer.world_scale
 	if _ws != new_ws:
 		_ws = new_ws
 		scale = Vector3.ONE * _ws
+	return Vector3.ONE
