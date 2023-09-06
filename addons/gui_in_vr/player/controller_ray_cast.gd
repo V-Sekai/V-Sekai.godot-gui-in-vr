@@ -24,7 +24,7 @@ func _try_send_input_to_gui(raycast_collider):
 		return # This isn't something we can give input to.
 
 	var collider_transform = raycast_collider.global_transform
-	if (global_transform.origin) * collider_transform.z < 0:
+	if (global_transform.origin * collider_transform.origin).z < 0:
 		return # Don't allow pressing if we're behind the GUI.
 
 	# Convert the collision to a relative position. Expects the 2nd child to be a CollisionShape.
@@ -37,12 +37,12 @@ func _try_send_input_to_gui(raycast_collider):
 	local_point += Vector3(0.5, -0.5, 0) # X is about 0 to 1, Y is about 0 to -1.
 
 	# Find the viewport position by scaling the relative position by the viewport size. Discard Z.
-	var viewport_point = Vector2(local_point.x, -local_point.y) * viewport.size
+	var viewport_point = Vector2(local_point.x, -local_point.y) * Vector2(viewport.size)
 
 	# Send mouse motion to the GUI.
 	var event = InputEventMouseMotion.new()
 	event.position = viewport_point
-	viewport.input(event)
+	viewport.push_input(event)
 
 	# Figure out whether or not we should trigger a click.
 	var desired_activate_gui := false
@@ -55,10 +55,10 @@ func _try_send_input_to_gui(raycast_collider):
 	# Send a left click to the GUI depending on the above.
 	if desired_activate_gui != _is_activating_gui:
 		event = InputEventMouseButton.new()
-		event.button_pressed = desired_activate_gui
+		event.pressed = desired_activate_gui
 		event.button_index = MOUSE_BUTTON_LEFT
 		event.position = viewport_point
-		viewport.input(event)
+		viewport.push_input(event)
 		_is_activating_gui = desired_activate_gui
 		_old_raycast_collider = raycast_collider
 		_old_viewport_point = viewport_point
@@ -68,7 +68,7 @@ func _release_mouse():
 	var event = InputEventMouseButton.new()
 	event.button_index = 1
 	event.position = _old_viewport_point
-	_old_raycast_collider.get_child(0).input(event)
+	_old_raycast_collider.get_child(0).push_input(event)
 	_old_raycast_collider = null
 	_is_activating_gui = false
 

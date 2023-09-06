@@ -52,7 +52,13 @@ func _base_controller_mesh_stuff():
 
 func load_controller_mesh(controller_name):
 	printerr("Unable to load a controller mesh.")
-	var sphere_mesh = SphereMesh.new()
+	var sphere_mesh: SphereMesh = SphereMesh.new()
+	var material: StandardMaterial3D = StandardMaterial3D.new()
+	material.albedo_color.a = 0.5
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	sphere_mesh.material = material
+	sphere_mesh.height = 0.5
+	sphere_mesh.radius = 0.25
 	return sphere_mesh
 
 
