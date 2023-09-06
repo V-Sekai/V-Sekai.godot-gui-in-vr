@@ -17,12 +17,19 @@ func _process(_delta):
 	_base_controller_mesh_stuff()
 
 	# Show a hint where the user's finger is on the touchpad.
-	var touchpad_input = _controller.get_vector2("trigger_touch")
+	var touchpad_input = _controller.get_vector2("primary")
 	if touchpad_input == Vector2.ZERO:
 		touchpad_selection_dot.position = Vector3.ZERO
 	else:
 		touchpad_selection_dot.position = Vector3(touchpad_input.x, 0.5, -touchpad_input.y) * 0.018
+		return
 
+	touchpad_input = _controller.get_vector2("secondary")
+	if touchpad_input == Vector2.ZERO:
+		touchpad_selection_dot.position = Vector3.ZERO
+	else:
+		touchpad_selection_dot.position = Vector3(touchpad_input.x, 0.5, -touchpad_input.y) * 0.018
+		return
 
 func _base_controller_mesh_stuff():
 	if !_controller.get_is_active():
