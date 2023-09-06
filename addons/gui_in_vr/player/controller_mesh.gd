@@ -1,17 +1,13 @@
-extends MeshInstance
-
-# Future proofing.
-const XRServer = ARVRServer
+extends MeshInstance3D
 
 signal controller_activated(controller)
 
 var _ws := 1.0
 
-onready var _controller = get_parent()
-onready var ovr_render_model = preload("res://addons/godot-openvr/OpenVRRenderModel.gdns").new()
-onready var vive_material = preload("res://addons/gui_in_vr/vive/vive.tres")
-onready var touchpad_cylinder = $Touchpad/Cylinder
-onready var touchpad_selection_dot = $Touchpad/SelectionDot
+@onready var _controller: XRController3D = get_parent()
+@onready var vive_material = preload("res://addons/gui_in_vr/vive/vive.tres")
+@onready var touchpad_cylinder = $Touchpad/Cylinder
+@onready var touchpad_selection_dot = $Touchpad/SelectionDot
 
 func _ready():
 	_controller.visible = false
@@ -21,11 +17,11 @@ func _process(_delta):
 	_base_controller_mesh_stuff()
 
 	# Show a hint where the user's finger is on the touchpad.
-	var touchpad_input = Vector2(_controller.get_joystick_axis(0), _controller.get_joystick_axis(1))
+	var touchpad_input = _controller.get_vector2("trigger_touch")
 	if touchpad_input == Vector2.ZERO:
-		touchpad_selection_dot.translation = Vector3.ZERO
+		touchpad_selection_dot.position = Vector3.ZERO
 	else:
-		touchpad_selection_dot.translation = Vector3(touchpad_input.x, 0.5, -touchpad_input.y) * 0.018
+		touchpad_selection_dot.position = Vector3(touchpad_input.x, 0.5, -touchpad_input.y) * 0.018
 
 
 func _base_controller_mesh_stuff():
@@ -40,7 +36,7 @@ func _base_controller_mesh_stuff():
 		return
 
 	# Became active, handle it.
-	var controller_name = _controller.get_controller_name()
+	var controller_name: String = _controller.get_pose().name
 	print("Controller " + controller_name + " became active")
 
 	# Attempt to load a mesh for this controller.
@@ -55,13 +51,9 @@ func _base_controller_mesh_stuff():
 
 
 func load_controller_mesh(controller_name):
-	if ovr_render_model.load_model(controller_name.substr(0, controller_name.length() - 2)):
-		return ovr_render_model
-	if ovr_render_model.load_model("generic_controller"):
-		return ovr_render_model
-
 	printerr("Unable to load a controller mesh.")
-	return Mesh.new()
+	var sphere_mesh = SphereMesh.new()
+	return sphere_mesh
 
 
 func _scale_controller_mesh():

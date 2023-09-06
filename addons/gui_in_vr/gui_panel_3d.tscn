@@ -1,38 +1,26 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://bsu1sgfgm46oi"]
 
-[ext_resource path="res://addons/gui_in_vr/gui.tscn" type="PackedScene" id=1]
+[ext_resource type="PackedScene" uid="uid://ffmp06i7baex" path="res://addons/gui_in_vr/gui.tscn" id="1"]
 
-[sub_resource type="BoxShape" id=1]
-extents = Vector3( 0.15, 0.1, 0.01 )
+[sub_resource type="BoxShape3D" id="1"]
+size = Vector3(0.15, 0.1, 0.01)
 
-[sub_resource type="QuadMesh" id=2]
-size = Vector2( 0.3, 0.2 )
+[sub_resource type="QuadMesh" id="2"]
+size = Vector2(0.3, 0.2)
 
-[sub_resource type="ViewportTexture" id=3]
-viewport_path = NodePath("Viewport")
+[node name="GUIPanel3D" type="StaticBody3D"]
 
-[sub_resource type="SpatialMaterial" id=4]
-resource_local_to_scene = true
-flags_transparent = true
-flags_unshaded = true
-flags_albedo_tex_force_srgb = true
-albedo_texture = SubResource( 3 )
-
-[node name="GUIPanel3D" type="StaticBody"]
-
-[node name="Viewport" type="Viewport" parent="."]
-size = Vector2( 280, 180 )
-hdr = false
-usage = 0
-render_target_v_flip = true
+[node name="SubViewport" type="SubViewport" parent="."]
+size = Vector2i(280, 180)
 render_target_update_mode = 3
 
-[node name="GUI" parent="Viewport" instance=ExtResource( 1 )]
+[node name="GUI" parent="SubViewport" instance=ExtResource("1")]
+layout_mode = 3
+anchors_preset = 0
 
-[node name="CollisionShape" type="CollisionShape" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.01 )
-shape = SubResource( 1 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.01)
+shape = SubResource("1")
 
-[node name="Quad" type="MeshInstance" parent="."]
-mesh = SubResource( 2 )
-material/0 = SubResource( 4 )
+[node name="Quad" type="MeshInstance3D" parent="."]
+mesh = SubResource("2")

@@ -1,14 +1,11 @@
-extends RayCast
-
-# Future proofing.
-const XRServer = ARVRServer
+extends RayCast3D
 
 var _is_activating_gui := false
-var _old_raycast_collider: PhysicsBody = null
+var _old_raycast_collider: PhysicsBody3D = null
 var _old_viewport_point: Vector2
 var _ws := 1.0
 
-onready var _controller = get_parent()
+@onready var _controller: XRController3D = get_parent()
 
 
 func _process(_delta):
@@ -23,18 +20,18 @@ func _process(_delta):
 
 func _try_send_input_to_gui(raycast_collider):
 	var viewport = raycast_collider.get_child(0)
-	if not (viewport is Viewport):
+	if not (viewport is SubViewport):
 		return # This isn't something we can give input to.
 
 	var collider_transform = raycast_collider.global_transform
-	if collider_transform.xform_inv(global_transform.origin).z < 0:
+	if (global_transform.origin) * collider_transform.z < 0:
 		return # Don't allow pressing if we're behind the GUI.
 
 	# Convert the collision to a relative position. Expects the 2nd child to be a CollisionShape.
-	var shape_size = raycast_collider.get_child(1).shape.extents * 2
+	var shape_size = raycast_collider.get_child(1).shape.size * 2
 	var collision_point = get_collision_point()
 	var collider_scale = collider_transform.basis.get_scale()
-	var local_point = collider_transform.xform_inv(collision_point)
+	var local_point = (collision_point) * collider_transform
 	local_point /= (collider_scale * collider_scale)
 	local_point /= shape_size
 	local_point += Vector3(0.5, -0.5, 0) # X is about 0 to 1, Y is about 0 to -1.
@@ -58,8 +55,8 @@ func _try_send_input_to_gui(raycast_collider):
 	# Send a left click to the GUI depending on the above.
 	if desired_activate_gui != _is_activating_gui:
 		event = InputEventMouseButton.new()
-		event.pressed = desired_activate_gui
-		event.button_index = BUTTON_LEFT
+		event.button_pressed = desired_activate_gui
+		event.button_index = MOUSE_BUTTON_LEFT
 		event.position = viewport_point
 		viewport.input(event)
 		_is_activating_gui = desired_activate_gui
@@ -77,7 +74,7 @@ func _release_mouse():
 
 
 func _is_trigger_pressed():
-	return _controller.get_joystick_axis(JOY_VR_ANALOG_TRIGGER) > 0.6
+	return _controller.get_float("trigger") > 0.6
 
 
 func _scale_ray():
