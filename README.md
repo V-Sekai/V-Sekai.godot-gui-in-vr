@@ -2,4 +2,4 @@
 
 This has been modified by V-Sekai for 4.0.
 
-The rest of this repo is Copyright © 2020 Aaron Franke, placed under the MIT License.
+Special thanks to Aaron Franke for developing godot-gui-in-vr.
