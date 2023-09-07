@@ -11,9 +11,8 @@ var _ws := 1.0
 func _process(_delta) -> void:
 	_scale_ray()
 	var raycast_collider: StaticBody3D = get_collider()
+	
 	# First of all, check if we need to release a previous mouse click.
-	if not raycast_collider:
-		return
 	if _old_raycast_collider != null and raycast_collider != _old_raycast_collider:
 		_release_mouse()
 	elif raycast_collider:
@@ -21,36 +20,32 @@ func _process(_delta) -> void:
 
 
 func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
-	var nodes: Array[Node] = raycast_collider.find_children("SubViewport", "SubViewport")
-	if not nodes.size():
-		return
-	var viewport: Viewport = nodes[0]
+	var viewport: Viewport = raycast_collider.get_child(0)
+	
 	if not viewport:
 		return # This isn't something we can give input to.
+	
 	var controls: Array[Node] = viewport.find_children("*", "Control")
 	if not controls.size():
 		return # This isn't something we can give input to.
+	
 	var control: Control = controls[0]
 	var collider_transform = raycast_collider.global_transform
-	if (global_transform.origin * collider_transform.origin).z < 0:
-		return # Don't allow pressing if we're behind the GUI.
+#	if (global_transform.origin * collider_transform.origin).z < 0:
+#		return # Don't allow pressing if we're behind the GUI.
 
-	# Convert the collision to a relative position. Expects the 2nd child to be a CollisionShape.
-	var shape_size = raycast_collider.get_child(1).shape.size * 2
 	var collision_point = get_collision_point()
-
-	var t = raycast_collider.global_transform
+	var t = raycast_collider.get_child(2).global_transform
 	var at = t.affine_inverse() * collision_point
-	var screen_size: Vector2 = control.size
-	at.x = ((at.x / screen_size.x) + 0.5) * viewport.size.x
-	at.y = (0.5 - (at.y / screen_size.y)) * viewport.size.y
-
+	at.y *= -1
+	at += Vector3(0.5, 0.5, 0)
+	
 	# Find the viewport position by scaling the relative position by the viewport size. Discard Z.
-	var viewport_point = Vector2(at.x, at.y)
+	var viewport_point = Vector2(at.x, at.y) * Vector2(viewport.size)
 
 	# Send mouse motion to the GUI.
 	var event = InputEventMouseMotion.new()
-	event.global_position = viewport_point
+	event.position = viewport_point
 	viewport.push_input(event)
 
 	# Figure out whether or not we should trigger a click.
@@ -62,15 +57,13 @@ func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
 		desired_activate_gui = _is_trigger_pressed() # Else, use the trigger.
 
 	# Send a left click to the GUI depending on the above.
-	if desired_activate_gui:
+	if desired_activate_gui != _is_activating_gui:
 		event = InputEventMouseButton.new()
 		event.pressed = desired_activate_gui
 		event.button_index = MOUSE_BUTTON_LEFT
 		event.position = viewport_point
 		viewport.push_input(event)
 		_is_activating_gui = desired_activate_gui
-		_old_raycast_collider = raycast_collider
-		_old_viewport_point = viewport_point
 
 
 func _release_mouse() -> void:

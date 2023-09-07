@@ -7,7 +7,6 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 280.0
 offset_bottom = 180.0
-mouse_filter = 1
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 0
