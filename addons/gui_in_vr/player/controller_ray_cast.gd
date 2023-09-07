@@ -20,15 +20,7 @@ func _process(_delta) -> void:
 
 
 func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
-<<<<<<< HEAD
 	var viewport: Viewport = raycast_collider.get_child(0)
-	
-=======
-	var nodes: Array[Node] = raycast_collider.find_children("*", "SubViewport")
-	if not nodes.size():
-		return
-	var viewport: Viewport = nodes[0]
->>>>>>> 97095bf4cc60660fa51d3a48d6e5c24e1db1cfba
 	if not viewport:
 		return # This isn't something we can give input to.
 	

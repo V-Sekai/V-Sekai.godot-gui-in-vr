@@ -10,13 +10,13 @@ size = Vector3(1, 1, 0)
 [sub_resource type="QuadMesh" id="QuadMesh_xx8ge"]
 resource_local_to_scene = true
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_mex4r"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_fmcvr"]
 viewport_path = NodePath("SubViewport")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ld1cm"]
 resource_local_to_scene = true
 shading_mode = 0
-albedo_texture = SubResource("ViewportTexture_mex4r")
+albedo_texture = SubResource("ViewportTexture_fmcvr")
 
 [node name="GUIPanel3D" type="StaticBody3D"]
 script = ExtResource("1_5csgu")
