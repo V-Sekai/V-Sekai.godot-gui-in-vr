@@ -46,19 +46,12 @@ func _base_controller_mesh_stuff():
 	var controller_name: String = _controller.get_pose().name
 	print("Controller " + controller_name + " became active")
 
-	# Attempt to load a mesh for this controller.
-	mesh = load_controller_mesh(controller_name)
 	touchpad_cylinder.visible = controller_name.find("vive") < 0
 	if !touchpad_cylinder.visible:
 		material_override = touchpad_material
 
 	_controller.visible = true
 	emit_signal("controller_activated", _controller)
-
-
-func load_controller_mesh(controller_name) -> Mesh:
-	printerr("Unable to load a controller mesh.")
-	return null
 
 
 func _scale_controller_mesh():
