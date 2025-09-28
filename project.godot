@@ -12,7 +12,7 @@ config_version=5
 
 config/name="GUI in VR"
 run/main_scene="res://addons/gui_in_vr/world.tscn"
-config/features=PackedStringArray("4.1")
+config/features=PackedStringArray("4.5")
 config/icon="res://addons/gui_in_vr/icon.png"
 
 [display]

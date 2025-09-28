@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bsu1sgfgm46oi"]
+[gd_scene load_steps=8 format=3 uid="uid://bsu1sgfgm46oi"]
 
 [ext_resource type="PackedScene" uid="uid://ffmp06i7baex" path="res://addons/gui_in_vr/gui.tscn" id="1"]
 [ext_resource type="Script" path="res://addons/gui_in_vr/gui_panel_3d.gd" id="1_5csgu"]
+[ext_resource type="Script" path="res://addons/gui_in_vr/interaction_manager.gd" id="2"]
+[ext_resource type="Script" path="res://addons/gui_in_vr/input_delegator.gd" id="3"]
 
 [sub_resource type="BoxShape3D" id="1"]
 resource_local_to_scene = true
@@ -19,13 +21,27 @@ cull_mode = 2
 shading_mode = 0
 albedo_texture = SubResource("ViewportTexture_fmcvr")
 
+[sub_resource type="SphereMesh" id="SphereMesh_cursor"]
+
 [node name="GUIPanel3D" type="StaticBody3D"]
 script = ExtResource("1_5csgu")
+
+[node name="InteractionManager" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="InputDelegator" type="Node" parent="."]
+script = ExtResource("3")
+
+[node name="Cursor" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Cursor"]
+mesh = SubResource("SphereMesh_cursor")
+scale = Vector3(0.01, 0.01, 0.01)
 
 [node name="SubViewport" type="SubViewport" parent="."]
 disable_3d = true
 gui_embed_subwindows = true
-size = Vector2i(280, 180)
+size = Vector2i(600, 400)
 render_target_update_mode = 4
 
 [node name="GUI" parent="SubViewport" instance=ExtResource("1")]

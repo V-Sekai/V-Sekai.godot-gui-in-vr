@@ -20,28 +20,53 @@ func _process(_delta) -> void:
 
 
 func _try_send_input_to_gui(raycast_collider: StaticBody3D) -> void:
-	var viewport: Viewport = raycast_collider.get_child(0)
+	var viewport: Viewport = raycast_collider.get_node("SubViewport")
 	if not viewport:
 		return # This isn't something we can give input to.
 	
-	var controls: Array[Node] = viewport.find_children("*", "Control")
-	if not controls.size():
-		return # This isn't something we can give input to.
+	var interaction_manager = raycast_collider.get_node("InteractionManager")
+	if not interaction_manager:
+		return
 	
-	var control: Control = controls[0]
-	var collider_transform = raycast_collider.global_transform
-#	if (global_transform.origin * collider_transform.origin).z < 0:
-#		return # Don't allow pressing if we're behind the GUI.
-
+	var aspect = viewport.size.x / float(viewport.size.y)
+	var effective_aspect = aspect * raycast_collider.scale.x
+	
 	var collision_point = get_collision_point()
-	var t = raycast_collider.get_child(2).global_transform
+	var t = raycast_collider.get_node("Quad").global_transform
 	var at = t.affine_inverse() * collision_point
+	at.x /= effective_aspect  # Normalize for effective aspect ratio
 	at.y *= -1
 	at += Vector3(0.5, 0.5, 0)
 	
 	# Find the viewport position by scaling the relative position by the viewport size. Discard Z.
 	var viewport_point = Vector2(at.x, at.y) * Vector2(viewport.size)
-
+	
+	var source_transform = global_transform.looking_at(collision_point, Vector3.UP)
+	var top_two = interaction_manager.lasso_db.calc_top_two_snapping_power(source_transform, null, 0.01, 0.01, false, 0.5)
+	
+	var canvas_item = null
+	var slider_ratio = -1.0
+	if top_two[0]:
+		canvas_item = top_two[0].origin.get_meta("canvas_item")
+		slider_ratio = top_two[0].origin.get_meta("slider_ratio", -1.0)
+	
+	if not canvas_item:
+		return
+	
+	# If snapped to a slider snap point, adjust viewport_point
+	if slider_ratio >= 0.0:
+		var snapped_rect = canvas_item.get_global_rect()
+		if canvas_item is HSlider:
+			viewport_point.x = snapped_rect.position.x + snapped_rect.size.x * slider_ratio
+			viewport_point.y = snapped_rect.position.y + snapped_rect.size.y / 2
+		elif canvas_item is VSlider:
+			viewport_point.x = snapped_rect.position.x + snapped_rect.size.x / 2
+			viewport_point.y = snapped_rect.position.y + snapped_rect.size.y * (1 - slider_ratio)
+	
+	# Move cursor to snapped position
+	if top_two[0]:
+		get_tree().get_root().get_node("World/GUIPanel3D/Cursor").global_position = top_two[0].origin.global_position
+	
 	# Send mouse motion to the GUI.
 	var event = InputEventMouseMotion.new()
 	event.position = viewport_point
