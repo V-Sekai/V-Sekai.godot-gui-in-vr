@@ -60,6 +60,7 @@ var mouse_global_pos: Vector2
 var last_coord: Vector2
 var last_canvas_item: CanvasItem
 var focused_control: Control
+var previous_mouse_pos: Vector2
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -76,13 +77,15 @@ func mouse_moved() -> void:
 	#print(position3D)
 	#print(camera.project_ray_origin(position2D))
 	(get_parent().get_node("Cursor") as Node3D).global_position = position3D
+	var source_transform = Transform3D(Basis.looking_at(camera.project_ray_normal(position2D)), position3D)
 	var top_two = lasso_db.calc_top_two_snapping_power(
-		Transform3D(Basis.looking_at(camera.project_ray_normal(position2D)), position3D),
+		source_transform,
 		null, 0.01, 0.01, false, 0.5)
 	var main_3d_anchor: Node3D = null
 	if top_two[0] != null:
 		main_3d_anchor = top_two[0].origin as Node3D
 	if main_3d_anchor != null:
+		(get_parent().get_node("Cursor") as Node3D).global_position = main_3d_anchor.global_position
 		# Assume the anchor has a reference to the canvas item
 		var ci: CanvasItem = main_3d_anchor.get_meta("canvas_item", null)
 		var viewport: Viewport
@@ -115,6 +118,8 @@ func mouse_moved() -> void:
 			last_control.notify_thread_safe(Control.NOTIFICATION_MOUSE_EXIT)
 			#last_control.mouse_exited.emit()
 			last_canvas_item = null
+	
+	previous_mouse_pos = position2D
 
 var event_index: int = get_instance_id()
 
